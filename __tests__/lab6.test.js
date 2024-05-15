@@ -29,10 +29,14 @@ describe('Basic user flow for Website', () => {
     });
     console.log(`Checking product item 1/${prodItemsData.length}`);
     // Make sure the title, price, and image are populated in the JSON
-    firstValue = prodItemsData[0];
+
+    for(var i = 0; i < prodItemsData.length; i++){
+      firstValue = prodItemsData[0];
     if (firstValue.title.length == 0) { allArePopulated = false; }
     if (firstValue.price.length == 0) { allArePopulated = false; }
     if (firstValue.image.length == 0) { allArePopulated = false; }
+    }
+    
     // Expect allArePopulated to still be true
     expect(allArePopulated).toBe(true);
 
@@ -60,9 +64,19 @@ describe('Basic user flow for Website', () => {
     console.log('Checking the "Add to Cart" button...');
     // TODO - Step 2
     // Query a <product-item> element using puppeteer ( checkout page.$() and page.$$() in the docs )
+    const page_productItem = await page.$('product-item');
     // Grab the shadowRoot of that element (it's a property), then query a button from that shadowRoot.
+    const page_shadowRoot = await page_productItem.getProperty('shadowRoot');
+    const button = await page_shadowRoot.$('button');
     // Once you have the button, you can click it and check the innerText property of the button.
+    await button.click();
     // Once you have the innerText property, use innerText.jsonValue() to get the text value of it
+    const innerText = await button.evaluate(button => button.innerText);
+
+    // Check to make sure that the innerText is "Remove from Cart"
+    expect(innerText).toBe('Remove from Cart');
+    await button.click(); //second click to reset the button since we click all buttons in the next test
+    
   }, 2500);
 
   // Check to make sure that after clicking "Add to Cart" on every <product-item> that the Cart
